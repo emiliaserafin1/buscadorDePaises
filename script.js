@@ -7,6 +7,8 @@ const cardsContainer = document.getElementById('card-container');
 const select = document.getElementById('filtro');
 const limpiarFiltros = document.getElementById('limpiar');
 const input = document.getElementById('pais-input');
+const ordenamientos = document.getElementById('orden');
+
 
 function cambiarModo() {
     // Si tiene la clase light-mode, cambia a dark-mode; si no, cambiar a light-mode
@@ -26,12 +28,20 @@ function cambiarModo() {
 icono.addEventListener('click', cambiarModo);
 
 async function obtenerPaises() {
+    const loader = document.getElementById('loader');
+    loader.style.display = 'block';
+
     const promise = await fetch(paisesApiUrl);
     const paises = await promise.json();
+    
+    // Esperar 1000ms antes de ocultar el loader
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    loader.style.display = 'none';
+
     return paises;
+
+  
 }
-
-
 
 async function filtrarPorContinente(continente){
     const promise = await fetch(filtrarPorContinenteApiUrl + continente);
@@ -218,6 +228,25 @@ function isLetter(letter) {
     return /^[a-zA-Z\s]$/.test(letter);
 }
 
+function ordenNombreAsc(listaDePaises){
+    listaDePaises.sort((a,b) => {
+        if(a.name.common > b.name.common){
+            return 1;
+        }
+        if(a.name.common < b.name.common){
+            return -1;
+        }
+        return 0;
+    });
+    return listaDePaises;
+}
+
+function ordenPoblacionAsc(listaDePaises){
+    listaDePaises.sort((a,b) =>  a.population - b.population);
+    return listaDePaises;
+}
+
+
 obtenerPaises().then(paises => mostrarTarjetas(paises));
 
 select.addEventListener('change', async (event) => {
@@ -247,6 +276,20 @@ limpiarFiltros.addEventListener('click', () => {
     obtenerPaises().then(paises => mostrarTarjetas(paises));
 });
 
-
-
+ordenamientos.addEventListener('change', async (event) => {
+    const orden = event.target.value;
+    cardsContainer.innerHTML = '';
+    const paises = await obtenerPaises();
+    if (orden === 'nombre-asc') {
+        mostrarTarjetas(ordenNombreAsc(paises));
+    } else if (orden === 'nombre-desc') {
+        mostrarTarjetas(ordenNombreAsc(paises).reverse());
+    } else if (orden === 'poblacion-asc') {
+        mostrarTarjetas(ordenPoblacionAsc(paises));
+    } else if (orden === 'poblacion-desc') {
+        mostrarTarjetas(ordenPoblacionAsc(paises).reverse());
+    } else {
+        mostrarTarjetas(paises);
+    }
+});
 
