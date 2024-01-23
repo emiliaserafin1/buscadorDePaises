@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paises</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="light-mode">
+    <header>
+        <h1>¡Hola Mundo!</h1>
+        <i id="icono" class="fa-regular fa-moon"></i>
+    </header>
+    <div class="filtros">
+        <div>
+            <label for="pais-input">
+                <input id="pais-input" type="text" placeholder="Ingrese un país">
+            </label>
+        </div>
+        <div>
+            <select name="orden" id="orden">
+                <option value="default" disabled selected>Ordenar por</option>
+                <option value="nombre-asc">Nombre ascendente</option>
+                <option value="nombre-desc">Nombre descendente</option>
+                <option value="poblacion-asc">Población ascendente</option>
+                <option value="poblacion-desc">Población descendente</option>
+            </select>
+            <select name="filtro" id="filtro">
+                <option value="default" selected disabled>Selecciona un continente</option>
+                <option value="Europe">Europa</option>
+                <option value="America">América</option>
+                <option value="Oceania">Oceanía</option>
+                <option value="Africa">África</option>
+                <option value="Antarctic">Antártida</option>
+                <option value="Asia">Asia</option>
+            </select>
+            <button id="limpiar">Limpiar filtros</button>
+        </div>
+    </div>
+    <div id="card-container">
+    </div>
+
+    <dialog class="dialog">
+    </dialog>
+
+    <script src="https://kit.fontawesome.com/30159088af.js" crossorigin="anonymous"></script>
+    <script src="script.js"></script>
+</body>
+</html>
