@@ -198,15 +198,27 @@ function mostrarTarjetas(listaDePaises){
     }  
 }
 
-async function filtrarPorNombre(busqueda){
+async function filtrarPorNombre(busqueda) {
     const listaDePaises = await obtenerPaises();
-    const paisesFiltrados = listaDePaises.filter(pais => pais.name.common.toLowerCase().startsWith(busqueda.toLowerCase()));
+
+    // Filtrar los países que comienzan con la búsqueda
+    const paisesEmp = listaDePaises.filter(pais => pais.name.common.toLowerCase().startsWith(busqueda.toLowerCase()));
+
+    // Filtrar los países que tienen la búsqueda pero no comienzan por ella
+    const paisesInc = listaDePaises.filter(pais => pais.name.common.toLowerCase().includes(busqueda.toLowerCase()) && !paisesEmp.includes(pais));
+
+    // Concatenar las listas
+    const paisesFiltrados = paisesEmp.concat(paisesInc);
+
     return paisesFiltrados;
 }
+
 
 function isLetter(letter) {
     return /^[a-zA-Z\s]$/.test(letter);
 }
+
+obtenerPaises().then(paises => mostrarTarjetas(paises));
 
 select.addEventListener('change', async (event) => {
     const continente = event.target.value;
@@ -232,7 +244,7 @@ input.addEventListener('keyup', async (event) => {
 
 limpiarFiltros.addEventListener('click', () => {
     cardsContainer.innerHTML = '';
-    obtenerPaises();
+    obtenerPaises().then(paises => mostrarTarjetas(paises));
 });
 
 
