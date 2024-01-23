@@ -8,7 +8,6 @@ const select = document.getElementById('filtro');
 const limpiarFiltros = document.getElementById('limpiar');
 const input = document.getElementById('pais-input');
 
-
 function cambiarModo() {
     // Si tiene la clase light-mode, cambia a dark-mode; si no, cambiar a light-mode
     if (body.classList.contains('light-mode')) {
@@ -29,11 +28,10 @@ icono.addEventListener('click', cambiarModo);
 async function obtenerPaises() {
     const promise = await fetch(paisesApiUrl);
     const paises = await promise.json();
-    mostrarTarjetas(paises);
-    
+    return paises;
 }
 
-obtenerPaises();
+
 
 async function filtrarPorContinente(continente){
     const promise = await fetch(filtrarPorContinenteApiUrl + continente);
@@ -200,17 +198,15 @@ function mostrarTarjetas(listaDePaises){
     }  
 }
 
-function filtrarPorNombre(busqueda, listaDePaises){
-    const busquedaLargo = busqueda.length
-    const paisesFiltrados = listaDePaises.filter(pais => pais.name.common.slice(0, busquedaLargo).toLowerCase() === busqueda.toLowerCase());
-    return paisesFiltrados
+async function filtrarPorNombre(busqueda){
+    const listaDePaises = await obtenerPaises();
+    const paisesFiltrados = listaDePaises.filter(pais => pais.name.common.toLowerCase().startsWith(busqueda.toLowerCase()));
+    return paisesFiltrados;
 }
 
 function isLetter(letter) {
     return /^[a-zA-Z\s]$/.test(letter);
 }
-
-obtenerPaises();
 
 select.addEventListener('change', async (event) => {
     const continente = event.target.value;
@@ -219,17 +215,19 @@ select.addEventListener('change', async (event) => {
     mostrarTarjetas(paises);
 });
 
+
 input.addEventListener('keydown', async (event) => {
-    const busqueda = event.key;
-    
-    if (!isLetter(busqueda) && busqueda !== 'Backspace') {
+    if (!isLetter(event.key) && event.key !== 'Backspace') {
         event.preventDefault();
     } 
-    
+});
+
+input.addEventListener('keyup', async (event) => {
+    if (!isLetter(event.key) && event.key !== 'Backspace') return;
+    const busqueda = event.target.value;
     cardsContainer.innerHTML = '';
-    const paises = await obtenerPaises();
-    const paisesFiltrados = filtrarPorNombre(busqueda, paises);
-    mostrarTarjetas(paisesFiltrados);
+    const paises = await filtrarPorNombre(busqueda);
+    mostrarTarjetas(paises);
 });
 
 limpiarFiltros.addEventListener('click', () => {
