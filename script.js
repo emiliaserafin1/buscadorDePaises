@@ -4,6 +4,10 @@ const body = document.body;
 const icono = document.getElementById('icono');
 const cardsContainer = document.getElementById('card-container');
 
+const select = document.getElementById('filtro');
+const limpiarFiltros = document.getElementById('limpiar');
+const input = document.getElementById('pais-input');
+
 
 function cambiarModo() {
     // Si tiene la clase light-mode, cambia a dark-mode; si no, cambiar a light-mode
@@ -196,9 +200,17 @@ function mostrarTarjetas(listaDePaises){
     }  
 }
 
-obtenerPaises();
+function filtrarPorNombre(busqueda, listaDePaises){
+    const busquedaLargo = busqueda.length
+    const paisesFiltrados = listaDePaises.filter(pais => pais.name.common.slice(0, busquedaLargo).toLowerCase() === busqueda.toLowerCase());
+    return paisesFiltrados
+}
 
-const select = document.getElementById('filtro');
+function isLetter(letter) {
+    return /^[a-zA-Z\s]$/.test(letter);
+}
+
+obtenerPaises();
 
 select.addEventListener('change', async (event) => {
     const continente = event.target.value;
@@ -207,12 +219,24 @@ select.addEventListener('change', async (event) => {
     mostrarTarjetas(paises);
 });
 
-const limpiarFiltros = document.getElementById('limpiar');
+input.addEventListener('keydown', async (event) => {
+    const busqueda = event.key;
+    
+    if (!isLetter(busqueda) && busqueda !== 'Backspace') {
+        event.preventDefault();
+    } 
+    
+    cardsContainer.innerHTML = '';
+    const paises = await obtenerPaises();
+    const paisesFiltrados = filtrarPorNombre(busqueda, paises);
+    mostrarTarjetas(paisesFiltrados);
+});
 
 limpiarFiltros.addEventListener('click', () => {
     cardsContainer.innerHTML = '';
     obtenerPaises();
 });
+
 
 
 
