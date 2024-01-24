@@ -8,7 +8,7 @@ const select = document.getElementById('filtro');
 const limpiarFiltros = document.getElementById('limpiar');
 const input = document.getElementById('pais-input');
 const ordenamientos = document.getElementById('orden');
-
+let listaDePaisesAux = [];
 
 function cambiarModo() {
     // Si tiene la clase light-mode, cambia a dark-mode; si no, cambiar a light-mode
@@ -27,27 +27,34 @@ function cambiarModo() {
 
 icono.addEventListener('click', cambiarModo);
 
-async function obtenerPaises() {
-    const loader = document.getElementById('loader');
-    loader.style.display = 'block';
+const loader = document.getElementById('loader');
 
+async function obtenerPaises() {
+    mostrarLoader();
     const promise = await fetch(paisesApiUrl);
     const paises = await promise.json();
-    
-    // Esperar 1000ms antes de ocultar el loader
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    loader.style.display = 'none';
-
+    listaDePaisesAux = paises;
+    ocultarLoader();
     return paises;
-
-  
 }
 
 async function filtrarPorContinente(continente){
+    mostrarLoader();
     const promise = await fetch(filtrarPorContinenteApiUrl + continente);
     const paises = await promise.json();
-    return paises
+    listaDePaisesAux = paises;
+    ocultarLoader();
+    return paises;
 }
+
+function mostrarLoader() {
+    loader.style.display = 'block';
+}
+
+function ocultarLoader() {
+    loader.style.display = 'none';
+}
+
 
 function mostrarTarjetas(listaDePaises){
       for (let i = 0; i < listaDePaises.length; i++) {
@@ -223,7 +230,6 @@ async function filtrarPorNombre(busqueda) {
     return paisesFiltrados;
 }
 
-
 function isLetter(letter) {
     return /^[a-zA-Z\s]$/.test(letter);
 }
@@ -246,50 +252,53 @@ function ordenPoblacionAsc(listaDePaises){
     return listaDePaises;
 }
 
-
 obtenerPaises().then(paises => mostrarTarjetas(paises));
 
-select.addEventListener('change', async (event) => {
-    const continente = event.target.value;
+async function actualizarTarjetas() {
+    const continente = select.value;
+    const busqueda = input.value.toLowerCase();
+    const orden = ordenamientos.value;
+
+    let paisesFiltrados = listaDePaisesAux;
+
+    // Filtrar por continente
+    if (continente) {
+        paisesFiltrados = await filtrarPorContinente(continente);
+    }
+
+    // Filtrar por nombre
+    if (busqueda) {
+        paisesFiltrados = paisesFiltrados.filter(pais =>
+            pais.name.common.toLowerCase().includes(busqueda)
+        );
+    }
+
+    // Aplicar ordenamiento
+    if (orden === 'nombre-asc') {
+        paisesFiltrados = ordenNombreAsc(paisesFiltrados);
+    } else if (orden === 'nombre-desc') {
+        paisesFiltrados = ordenNombreAsc(paisesFiltrados).reverse();
+    } else if (orden === 'poblacion-asc') {
+        paisesFiltrados = ordenPoblacionAsc(paisesFiltrados);
+    } else if (orden === 'poblacion-desc') {
+        paisesFiltrados = ordenPoblacionAsc(paisesFiltrados).reverse();
+    }
+
+    // Mostrar las tarjetas actualizadas
     cardsContainer.innerHTML = '';
-    const paises = await filtrarPorContinente(continente);
-    mostrarTarjetas(paises);
-});
+    mostrarTarjetas(paisesFiltrados);
+}
 
 
-input.addEventListener('keydown', async (event) => {
-    if (!isLetter(event.key) && event.key !== 'Backspace') {
-        event.preventDefault();
-    } 
-});
-
-input.addEventListener('keyup', async (event) => {
-    if (!isLetter(event.key) && event.key !== 'Backspace') return;
-    const busqueda = event.target.value;
-    cardsContainer.innerHTML = '';
-    const paises = await filtrarPorNombre(busqueda);
-    mostrarTarjetas(paises);
-});
+// Actualiza el evento del selector de continentes para llamar a la función de actualización
+select.addEventListener('change', actualizarTarjetas);
+input.addEventListener('keyup', actualizarTarjetas);
+ordenamientos.addEventListener('change', actualizarTarjetas);
 
 limpiarFiltros.addEventListener('click', () => {
     cardsContainer.innerHTML = '';
     obtenerPaises().then(paises => mostrarTarjetas(paises));
 });
 
-ordenamientos.addEventListener('change', async (event) => {
-    const orden = event.target.value;
-    cardsContainer.innerHTML = '';
-    const paises = await obtenerPaises();
-    if (orden === 'nombre-asc') {
-        mostrarTarjetas(ordenNombreAsc(paises));
-    } else if (orden === 'nombre-desc') {
-        mostrarTarjetas(ordenNombreAsc(paises).reverse());
-    } else if (orden === 'poblacion-asc') {
-        mostrarTarjetas(ordenPoblacionAsc(paises));
-    } else if (orden === 'poblacion-desc') {
-        mostrarTarjetas(ordenPoblacionAsc(paises).reverse());
-    } else {
-        mostrarTarjetas(paises);
-    }
-});
+
 
