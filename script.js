@@ -257,6 +257,7 @@ async function actualizarTarjetas() {
     const busqueda = input.value.toLowerCase();
     const orden = ordenamientos.value;
 
+<<<<<<< HEAD
     let paisesFiltrados = listaDePaisesAux.slice(); // Iniciar con una copia de la lista original
 
     // Filtrar por continente si se selecciona uno
@@ -267,6 +268,20 @@ async function actualizarTarjetas() {
     // Aplicar filtro por nombre si se ingresa una búsqueda
     if (busqueda) {
         paisesFiltrados = await filtrarPorNombre(busqueda, paisesFiltrados);
+=======
+    let paisesFiltrados = listaDePaisesAux;
+
+    // Filtrar por continente
+    if (continente) {
+        paisesFiltrados = await filtrarPorContinente(continente);
+    }
+
+    // Filtrar por nombre
+    if (busqueda) {
+        paisesFiltrados = paisesFiltrados.filter(pais =>
+            pais.name.common.toLowerCase().includes(busqueda)
+        );
+>>>>>>> 84d99b2c8fcc88b881651b9105331ff38094477b
     }
 
     // Aplicar ordenamiento
@@ -286,8 +301,11 @@ async function actualizarTarjetas() {
 }
 
 
+<<<<<<< HEAD
 
 
+=======
+>>>>>>> 84d99b2c8fcc88b881651b9105331ff38094477b
 // Actualiza el evento del selector de continentes para llamar a la función de actualización
 select.addEventListener('change', actualizarTarjetas);
 input.addEventListener('keyup', actualizarTarjetas);
@@ -298,4 +316,11 @@ limpiarFiltros.addEventListener('click', () => {
     select.value = 'default';
     ordenamientos.value = 'default';
     obtenerPaises().then(paises => mostrarTarjetas(paises));
+<<<<<<< HEAD
 });
+=======
+});
+
+
+
+>>>>>>> 84d99b2c8fcc88b881651b9105331ff38094477b
