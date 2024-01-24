@@ -171,3 +171,17 @@ dialog {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
+
+
+@media (max-width < 1200) {
+
+}
+
+@media (max-width < 768px) {
+  
+}
+
+
+@media (max-width < 320px) {
+   
+}
